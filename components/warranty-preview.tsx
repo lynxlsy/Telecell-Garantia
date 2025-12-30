@@ -15,6 +15,18 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
   const handlePrint = () => {
     window.print()
   }
+  
+  const getWarrantyText = (warrantyDuration: string): string => {
+    // Parse the warranty duration string to extract months
+    // Expected format: "X meses (Y dias)" where X is months and Y is days
+    const monthsMatch = warrantyDuration.match(/(\d+)\s*meses?/);
+    const months = monthsMatch ? parseInt(monthsMatch[1]) : 12;
+    
+    // Calculate days based on months (using 30 days per month as standard)
+    const days = months * 30;
+    
+    return `Garantia válida por ${months} meses (${days} dias). Não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.`;
+  }
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -141,7 +153,7 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
           <div className="border-2 border-gray-800 p-2">
             <p className="text-xs font-bold text-black uppercase mb-1">Observações da Garantia</p>
             <p className="text-xs leading-tight">
-              Garantia válida por 365 dias (12 meses). Não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.
+              {getWarrantyText(data.warrantyDuration)}
             </p>
           </div>
 

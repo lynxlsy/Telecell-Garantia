@@ -76,6 +76,18 @@ function createInfoCell(label: string, value: string, width: number, mono = fals
   })
 }
 
+function getWarrantyText(warrantyDuration: string): string {
+  // Parse the warranty duration string to extract months
+  // Expected format: "X meses (Y dias)" where X is months and Y is days
+  const monthsMatch = warrantyDuration.match(/(\d+)\s*meses?/);
+  const months = monthsMatch ? parseInt(monthsMatch[1]) : 12;
+  
+  // Calculate days based on months (using 30 days per month as standard)
+  const days = months * 30;
+  
+  return `Garantia válida por ${months} meses (${days} dias). Não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data: WarrantyData = await request.json()
@@ -335,7 +347,7 @@ export async function POST(request: NextRequest) {
                           spacing: { line: 400 },
                           children: [
                             new TextRun({
-                              text: 'Garantia válida por 365 dias (12 meses). A garantia não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.',
+                              text: getWarrantyText(data.warrantyDuration),
                               size: 24,
                               color: '1F2937',
                             }),

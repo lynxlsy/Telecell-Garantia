@@ -123,7 +123,7 @@ export function WarrantyForm() {
 
   // Step 3: Sale Data
   const [saleValue, setSaleValue] = useState("")
-  const [warrantyDuration, setWarrantyDuration] = useState("365 dias (12 meses)")
+  const [warrantyMonths, setWarrantyMonths] = useState(12)
   const [observations, setObservations] = useState("")
 
   // Step 4: Issuance Data
@@ -195,7 +195,7 @@ export function WarrantyForm() {
       imei2,
       saleValue: Number.parseFloat(saleValue),
       saleValueInWords: numberToWords(Number.parseFloat(saleValue)),
-      warrantyDuration,
+      warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
       issueCity,
       issueDate,
       signatureName,
@@ -258,7 +258,7 @@ export function WarrantyForm() {
           imei2,
           saleValue: Number.parseFloat(saleValue),
           saleValueInWords,
-          warrantyDuration,
+          warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
           issueCity,
           issueDate,
           signatureName,
@@ -570,15 +570,18 @@ export function WarrantyForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="warrantyDuration" className="text-base font-semibold">
-                    Duração da Garantia
+                  <Label htmlFor="warrantyMonths" className="text-base font-semibold">
+                    Duração da Garantia (meses)
                   </Label>
                   <Input
-                    id="warrantyDuration"
-                    value={warrantyDuration}
-                    onChange={(e) => setWarrantyDuration(e.target.value)}
-                    placeholder="365 dias (12 meses)"
+                    id="warrantyMonths"
+                    type="number"
+                    min="1"
+                    value={warrantyMonths}
+                    onChange={(e) => setWarrantyMonths(Number.parseInt(e.target.value) || 1)}
+                    placeholder="Digite o número de meses"
                   />
+                  <p className="text-sm text-gray-500">A garantia será calculada como {warrantyMonths} meses ({warrantyMonths * 30} dias)</p>
                 </div>
 
                 <div className="space-y-2">
