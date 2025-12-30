@@ -165,7 +165,7 @@
     left: 0;
     top: 0;
     width: 210mm;
-    height: 297mm;
+    height: 148.5mm; /* Half of A4 height (297mm / 2) */
     margin: 0;
     padding: 0;
     page-break-after: avoid;
@@ -233,4 +233,18 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+  
+  /* Optimize font sizes for compact printing */
+  #print-area .text-xs { font-size: 0.75rem !important; }
+  #print-area .text-sm { font-size: 0.8rem !important; }
+  #print-area .text-base { font-size: 0.85rem !important; }
+  #print-area .text-lg { font-size: 0.9rem !important; }
+  #print-area .text-xl { font-size: 0.95rem !important; }
+  
+  /* Reduce padding and margins in print */
+  #print-area .p-4 { padding: 0.5rem !important; }
+  #print-area .p-6 { padding: 0.5rem !important; }
+  #print-area .py-2 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+  #print-area .px-4 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+  #print-area .space-y-2 > :not([hidden]) ~ :not([hidden]) { --space-y-reverse: 0; margin-top: calc(0.25rem * calc(1 - var(--space-y-reverse))) !important; margin-bottom: calc(0.25rem * var(--space-y-reverse)) !important; }
 }

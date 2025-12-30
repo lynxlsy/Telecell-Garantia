@@ -40,154 +40,128 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
         <div className="text-sm text-blue-800">
           <p className="font-semibold">Recibo de Garantia</p>
           <p>
-            Optimizado para impressão em preto e branco em uma única folha A4. Clique em "Imprimir Recibo" para
+            Optimizado para impressão em preto e branco em meia folha A4. Clique em "Imprimir Recibo" para
             visualizar ou "Gerar DOCX" para salvar.
           </p>
         </div>
       </div>
 
       <div id="print-area" className="bg-white shadow-lg">
-        {/* BLACK HEADER - COMPACT */}
-        <div className="bg-black px-6 py-4">
-          <div className="grid grid-cols-3 items-center gap-4">
-            {/* Logo */}
-            <div className="flex justify-start">
+        {/* 1️⃣ MINIMALIST BLACK HEADER WITH COMPANY DATA */}
+        <div className="bg-black px-4 py-2">
+          <div className="flex items-center justify-between">
+            {/* LEFT - LOGO */}
+            <div className="flex items-center">
               <Image
                 src="/images/telecell-magazine-logo-transparent.png"
                 alt="Telecell Magazine"
-                width={100}
-                height={32}
+                width={120}
+                height={40}
                 className="h-auto logo-print"
               />
             </div>
-
-            {/* Title */}
-            <div className="text-center">
-              <h1 className="text-xl font-bold text-white tracking-wide">RECIBO DE GARANTIA</h1>
+            
+            {/* CENTER - FIXED TITLE */}
+            <div className="text-center flex-1 mx-4">
+              <h1 className="text-xl font-black text-white tracking-wide">RECIBO DE GARANTIA</h1>
             </div>
-
-            {/* Company Info - Right */}
-            <div className="text-right text-xs text-white space-y-0.5">
-              <p className="font-bold">{data.companyName}</p>
-              <p className="text-xs">{data.companyLegalName}</p>
-              <p className="text-xs">CNPJ: {data.companyCNPJ}</p>
-              <p className="text-xs">IE: {data.companyStateRegistration}</p>
+            
+            {/* RIGHT - SHOP DATA (COMPACT) */}
+            <div className="text-right text-xs text-white">
+              <p className="font-bold">{data.companyName} – {data.companyLegalName}</p>
+              <p className="text-xs">CNPJ: {data.companyCNPJ} | IE: {data.companyStateRegistration}</p>
+              <p className="text-xs">{data.companyAddress}</p>
             </div>
           </div>
         </div>
 
-        {/* MAIN CONTENT - COMPACT SPACING */}
-        <div className="p-6 space-y-3">
-          {/* SECTION 1: BENEFICIARY DATA */}
-          <div className="space-y-2">
-            <h2 className="text-base font-bold text-black border-b-2 border-black pb-1 uppercase tracking-wider">
-              Dados do Beneficiário
-            </h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+        {/* COMPACT MAIN CONTENT */}
+        <div className="p-3 space-y-2">
+          {/* 2️⃣ DADOS DO BENEFICIÁRIO (WITH VISUAL EMPHASIS) */}
+          <div className="border-2 border-gray-800 p-2 bg-gray-50">
+            <p className="text-xs font-bold text-black uppercase mb-1">Dados do Beneficiário</p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <p className="text-xs font-bold text-black uppercase">Nome</p>
+                <p className="text-xs font-medium text-black">Nome:</p>
                 <p className="text-black font-medium">{data.customerName}</p>
               </div>
               <div>
-                <p className="text-xs font-bold text-black uppercase">CPF</p>
+                <p className="text-xs font-medium text-black">CPF:</p>
                 <p className="text-black font-medium">{data.cpf}</p>
               </div>
               <div>
-                <p className="text-xs font-bold text-black uppercase">Telefone</p>
+                <p className="text-xs font-medium text-black">Telefone:</p>
                 <p className="text-black font-medium">{data.phone}</p>
               </div>
               <div>
-                <p className="text-xs font-bold text-black uppercase">Cidade</p>
-                <p className="text-black font-medium">
-                  {data.city} - {data.state}
-                </p>
+                <p className="text-xs font-medium text-black">Cidade/UF:</p>
+                <p className="text-black font-medium">{data.city}/{data.state}</p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 2: SMARTPHONE DATA */}
+          {/* 3️⃣ DADOS DO SMARTPHONE (WITH VISUAL EMPHASIS) */}
+          <div className="border-2 border-gray-800 p-2 bg-gray-50">
+            <p className="text-xs font-bold text-black uppercase mb-1">Dados do Smartphone</p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="col-span-2">
+                <p className="text-xs font-medium text-black">Marca / Modelo:</p>
+                <p className="text-black font-medium">{data.brand} {data.model}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-black">Memória:</p>
+                <p className="text-black font-medium">{data.romMemory} / {data.ramMemory}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-black">IMEI:</p>
+                <p className="text-black font-medium">{data.imei1}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 4️⃣ VALOR + DADOS DO PAGAMENTO */}
           <div className="space-y-2">
-            <h2 className="text-base font-bold text-black border-b-2 border-black pb-1 uppercase tracking-wider">
-              Dados do Smartphone
-            </h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-xs font-bold text-black uppercase">Marca</p>
-                <p className="text-black font-medium">{data.brand}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-black uppercase">Modelo</p>
-                <p className="text-black font-medium">{data.model}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-black uppercase">ROM/RAM</p>
-                <p className="text-black font-medium">
-                  {data.romMemory} / {data.ramMemory}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-black uppercase">IMEI 1</p>
-                <p className="text-black font-mono text-xs">{data.imei1}</p>
-              </div>
-              {data.imei2 && (
-                <div className="col-span-2">
-                  <p className="text-xs font-bold text-black uppercase">IMEI 2</p>
-                  <p className="text-black font-mono text-xs">{data.imei2}</p>
-                </div>
-              )}
+            {/* VALOR PAGO (WITH VISUAL EMPHASIS) */}
+            <div className="border-2 border-black p-2 text-center">
+              <p className="text-xs font-bold uppercase mb-1">Valor Pago</p>
+              <p className="text-2xl font-black">R$ {data.saleValue.toFixed(2).replace(".", ",")}</p>
+              <p className="text-xs font-medium capitalize mt-1">{data.saleValueInWords}</p>
             </div>
-          </div>
-
-          {/* SECTION 3: PAYMENT VALUE - MAXIMUM HIGHLIGHT */}
-          <div className="bg-black border-4 border-black text-white p-4 text-center space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider">Valor Total</p>
-            <p className="text-4xl font-black">R$ {data.saleValue.toFixed(2).replace(".", ",")}</p>
-            <div className="border-t border-gray-600 pt-2">
-              <p className="text-xs font-bold uppercase mb-1">Por Extenso</p>
-              <p className="text-sm font-medium leading-tight capitalize">{data.saleValueInWords}</p>
-            </div>
-          </div>
-
-          {/* SECTION 3.5: FORMAL PAYMENT DATA SECTION */}
-          <div className="border border-gray-400 p-3 bg-white">
-            <p className="text-xs font-bold text-black uppercase tracking-wider mb-2">Dados do Pagamento</p>
-            <p className="text-sm text-black leading-tight text-justify">
-              A importância de ({data.saleValueInWords.toLowerCase()}), correspondente ao valor total pago, referente à
-              compra de 01 (um) aparelho smartphone, com memória {data.romMemory}ROM / {data.ramMemory}RAM, marca{" "}
-              {data.brand}, modelo {data.model}, IMEI {data.imei1}
-              {data.imei2 && ` e IMEI ${data.imei2}`}, conforme dados informados neste recibo.
-            </p>
-          </div>
-
-          {/* SECTION 4: WARRANTY OBSERVATION */}
-          <div className="border-4 border-black p-3 bg-white">
-            <p className="text-xs font-bold text-black uppercase tracking-wider mb-1">Observações da Garantia</p>
-            <p className="text-sm text-black leading-tight">
-              Garantia válida por 365 dias (12 meses). A garantia não cobre impacto, oxidação ou qualquer dano provocado
-              por mau uso do aparelho.
-            </p>
-          </div>
-
-          {/* SECTION 5: FOOTER */}
-          <div className="pt-3 space-y-2 border-t-2 border-black">
-            <p className="text-sm font-bold text-black">
-              {data.issueCity}, {data.issueDate}
-            </p>
-
-            <div className="border-t pt-2 mt-3 space-y-1">
-              <p className="text-xs text-black leading-tight">
-                <span className="font-bold">Contato:</span> WhatsApp {data.companyPhone2} | Tel. {data.companyPhone1} |
-                Instagram @telecellmagazine
+            
+            {/* DADOS DO PAGAMENTO (FORMAL AND CONCISE) */}
+            <div className="border border-gray-400 p-2">
+              <p className="text-xs font-bold text-black uppercase mb-1">Dados do Pagamento:</p>
+              <p className="text-xs leading-tight">
+                A importância acima descrita refere-se à compra de 01 (um) aparelho smartphone, conforme especificações constantes neste recibo.
               </p>
-              <p className="text-xs text-black">{data.companyAddress}</p>
             </div>
+          </div>
 
-            <div className="flex justify-end pt-4">
-              <div className="flex flex-col items-center w-64">
-                <div className="w-full border-t-2 border-black"></div>
-                <p className="font-bold text-black text-sm mt-1">{data.signatureName}</p>
-              </div>
+          {/* 5️⃣ OBSERVAÇÕES DA GARANTIA (WITH EMPHASIS) */}
+          <div className="border-2 border-gray-800 p-2">
+            <p className="text-xs font-bold text-black uppercase mb-1">Observações da Garantia</p>
+            <p className="text-xs leading-tight">
+              Garantia válida por 365 dias (12 meses). Não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.
+            </p>
+          </div>
+
+          {/* 6️⃣ LOCAL, DATA E ASSINATURA (PROPORTIONAL SIGNATURE LINE) */}
+          <div className="space-y-3">
+            <div className="text-center">
+              <p className="font-bold text-sm">{data.issueCity}, {data.issueDate}</p>
             </div>
+            
+            <div className="text-center pt-4">
+              <div className="border-t border-black w-3/5 mx-auto h-0.5"></div>
+              <p className="font-bold text-sm mt-1">{data.signatureName}</p>
+            </div>
+          </div>
+
+          {/* 7️⃣ CONTATO DA EMPRESA (ULTRA COMPACT) */}
+          <div className="text-center border-t border-gray-300 pt-1">
+            <p className="text-xs">
+              Contato: WhatsApp {data.companyPhone2} | Tel. {data.companyPhone1} | Instagram @telecellmagazine
+            </p>
           </div>
         </div>
       </div>

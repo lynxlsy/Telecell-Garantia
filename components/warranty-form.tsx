@@ -12,7 +12,47 @@ import { ProgressStepper } from "./progress-stepper"
 import { validateCPF, formatCPF } from "@/lib/cpf-validator"
 import { formatPhone } from "@/lib/format-phone"
 import { numberToWords } from "@/lib/number-to-words"
-import { generateWarrantyDocx, type WarrantyData } from "@/lib/generate-docx"
+// Define WarrantyData interface locally since we can't import it from the server-only module
+interface WarrantyData {
+  // Customer
+  customerName: string
+  cpf: string
+  phone: string
+  city: string
+  state: string
+
+  // Smartphone
+  productType: string
+  brand: string
+  model: string
+  romMemory: string
+  ramMemory: string
+  imei1: string
+  imei2?: string
+
+  // Sale
+  saleValue: number
+  saleValueInWords: string
+  warrantyDuration: string
+
+  // Issuance
+  issueCity: string
+  issueDate: string
+  signatureName: string
+  signatureImage?: ArrayBuffer
+
+  companyName: string
+  companyLegalName: string
+  companyCNPJ: string
+  companyStateRegistration: string
+  companyAddress: string
+  companyPhone1: string
+  companyPhone2: string
+  observations?: string
+}
+
+// Removed direct import of generateWarrantyDocx as it uses docx which is not browser-compatible
+// Now using API route for DOCX generation
 import { WarrantyPreview } from "./warranty-preview"
 
 const steps = [
@@ -170,19 +210,31 @@ export function WarrantyForm() {
     }
 
     try {
-      const blob = await generateWarrantyDocx(data)
+      const response = await fetch('/api/generate-docx', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
 
+      if (!response.ok) {
+        throw new Error('Failed to generate document')
+      }
+
+      // Create a download link for the returned blob
+      const blob = await response.blob()
       const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
+      const link = document.createElement('a')
       link.href = url
-      link.download = `Recibo_Garantia_${customerName.replace(/\s+/g, "_")}.docx`
+      link.download = `Recibo_Garantia_${customerName.replace(/\s+/g, '_')}.docx`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error("Error generating DOCX:", error)
-      alert("Erro ao gerar documento. Por favor, tente novamente.")
+      console.error('Error generating DOCX:', error)
+      alert('Erro ao gerar documento. Por favor, tente novamente.')
     }
   }
 
