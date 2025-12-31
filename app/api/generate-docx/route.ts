@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
                 new TextRun({
                   text: 'DADOS DO BENEFICIÁRIO',
                   bold: true,
-                  size: 26,
+                  size: 28,
                   color: '000000',
                 }),
               ],
@@ -149,12 +149,12 @@ export async function POST(request: NextRequest) {
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                left: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                right: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '9CA3AF' },
-                insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '9CA3AF' },
+                top: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+                insideVertical: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
               },
               rows: [
                 new TableRow({
@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
                 new TextRun({
                   text: 'DADOS DO SMARTPHONE',
                   bold: true,
-                  size: 26,
+                  size: 28,
                   color: '000000',
                 }),
               ],
@@ -185,12 +185,12 @@ export async function POST(request: NextRequest) {
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                left: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                right: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: '9CA3AF' },
-                insideVertical: { style: BorderStyle.SINGLE, size: 1, color: '9CA3AF' },
+                top: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+                insideVertical: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
               },
               rows: [
                 new TableRow({
@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
                 new TextRun({
                   text: 'DADOS DO PAGAMENTO',
                   bold: true,
-                  size: 26,
+                  size: 28,
                   color: '000000',
                 }),
               ],
@@ -278,10 +278,10 @@ export async function POST(request: NextRequest) {
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                left: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                right: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
+                top: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
                 insideHorizontal: { style: BorderStyle.NONE },
                 insideVertical: { style: BorderStyle.NONE },
               },
@@ -317,7 +317,7 @@ export async function POST(request: NextRequest) {
                 new TextRun({
                   text: 'OBSERVAÇÕES DA GARANTIA',
                   bold: true,
-                  size: 26,
+                  size: 28,
                   color: '000000',
                 }),
               ],
@@ -327,10 +327,10 @@ export async function POST(request: NextRequest) {
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
               borders: {
-                top: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
-                bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
-                left: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
-                right: { style: BorderStyle.SINGLE, size: 2, color: '000000' },
+                top: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                left: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                right: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
                 insideHorizontal: { style: BorderStyle.NONE },
                 insideVertical: { style: BorderStyle.NONE },
               },
@@ -367,7 +367,7 @@ export async function POST(request: NextRequest) {
                       new TextRun({
                         text: 'OBSERVAÇÕES',
                         bold: true,
-                        size: 26,
+                        size: 28,
                         color: '000000',
                       }),
                     ],
@@ -376,10 +376,10 @@ export async function POST(request: NextRequest) {
                   new Table({
                     width: { size: 100, type: WidthType.PERCENTAGE },
                     borders: {
-                      top: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                      bottom: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                      left: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
-                      right: { style: BorderStyle.SINGLE, size: 1, color: '4B5563' },
+                      top: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                      bottom: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                      left: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
+                      right: { style: BorderStyle.SINGLE, size: 4, color: '000000' },
                       insideHorizontal: { style: BorderStyle.NONE },
                       insideVertical: { style: BorderStyle.NONE },
                     },

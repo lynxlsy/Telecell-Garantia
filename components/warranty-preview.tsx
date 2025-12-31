@@ -67,15 +67,15 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
               <Image
                 src="/images/telecell-magazine-logo-transparent.png"
                 alt="Telecell Magazine"
-                width={120}
-                height={40}
+                width={140}
+                height={46}
                 className="h-auto logo-print"
               />
             </div>
             
             {/* CENTER - FIXED TITLE */}
             <div className="text-center flex-1 mx-4">
-              <h1 className="text-xl font-black text-black tracking-wide">RECIBO DE GARANTIA</h1>
+              <h1 className="text-2xl font-extrabold text-black tracking-wider uppercase">RECIBO DE GARANTIA</h1>
             </div>
             
             {/* RIGHT - SHOP DATA (COMPACT) */}
@@ -90,8 +90,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
         {/* COMPACT MAIN CONTENT */}
         <div className="p-3 space-y-2">
           {/* 2️⃣ DADOS DO BENEFICIÁRIO (WITH VISUAL EMPHASIS) */}
-          <div className="border-2 border-gray-800 p-2 bg-gray-50">
-            <p className="text-xs font-bold text-black uppercase mb-1">Dados do Beneficiário</p>
+          <div className="border-2 border-black p-2 bg-gray-50">
+            <p className="text-xs font-extrabold text-black uppercase mb-1">Dados do Beneficiário</p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
                 <p className="text-xs font-medium text-black">Nome:</p>
@@ -113,8 +113,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
           </div>
 
           {/* 3️⃣ DADOS DO SMARTPHONE (WITH VISUAL EMPHASIS) */}
-          <div className="border-2 border-gray-800 p-2 bg-gray-50">
-            <p className="text-xs font-bold text-black uppercase mb-1">Dados do Smartphone</p>
+          <div className="border-2 border-black p-2 bg-gray-50">
+            <p className="text-xs font-extrabold text-black uppercase mb-1">Dados do Smartphone</p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="col-span-2">
                 <p className="text-xs font-medium text-black">Marca / Modelo:</p>
@@ -141,8 +141,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
             </div>
             
             {/* DADOS DO PAGAMENTO (FORMAL AND CONCISE) */}
-            <div className="border border-gray-400 p-2">
-              <p className="text-xs font-bold text-black uppercase mb-1">Dados do Pagamento:</p>
+            <div className="border-2 border-black p-2">
+              <p className="text-xs font-extrabold text-black uppercase mb-1">Dados do Pagamento:</p>
               <p className="text-xs leading-tight">
                 A importância acima descrita refere-se à compra de 01 (um) aparelho smartphone, conforme especificações constantes neste recibo.
               </p>
@@ -150,8 +150,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
           </div>
 
           {/* 5️⃣ OBSERVAÇÕES DA GARANTIA (WITH EMPHASIS) */}
-          <div className="border-2 border-gray-800 p-2">
-            <p className="text-xs font-bold text-black uppercase mb-1">Observações da Garantia</p>
+          <div className="border-2 border-black p-2">
+            <p className="text-xs font-extrabold text-black uppercase mb-1">Observações da Garantia</p>
             <p className="text-xs leading-tight">
               {getWarrantyText(data.warrantyDuration)}
             </p>
@@ -170,7 +170,7 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
           </div>
 
           {/* 7️⃣ CONTATO DA EMPRESA (ULTRA COMPACT) */}
-          <div className="text-center border-t border-gray-300 pt-1">
+          <div className="text-center border-t-2 border-black pt-1">
             <p className="text-xs">
               Contato: WhatsApp {data.companyPhone2} | Tel. {data.companyPhone1} | Instagram @telecellmagazine
             </p>
