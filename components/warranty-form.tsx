@@ -96,6 +96,25 @@ export function WarrantyForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [showPreview, setShowPreview] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const form = e.currentTarget.closest('form');
+      if (form) {
+        const focusableElements = form.querySelectorAll(
+          'input, select, textarea, button'
+        ) as NodeListOf<HTMLElement>;
+        
+        const currentElement = e.currentTarget as HTMLElement;
+        const currentIndex = Array.from(focusableElements).indexOf(currentElement);
+        
+        if (currentIndex < focusableElements.length - 1) {
+          focusableElements[currentIndex + 1].focus();
+        }
+      }
+    }
+  }
 
   const [companyName] = useState("Telecell Magazine")
   const [companyLegalName] = useState("E dos Santos Silva")
@@ -296,6 +315,7 @@ export function WarrantyForm() {
               handleNext()
             }
           }}
+          onKeyDown={handleKeyDown}
           className="space-y-8"
         >
           {/* Step 1: Customer Data */}
