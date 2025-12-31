@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
                           spacing: { line: 360 },
                           children: [
                             new TextRun({
-                              text: `A importância de (${data.saleValueInWords.toLowerCase()}), correspondente ao valor total pago, referente à compra de 01 (um) aparelho smartphone, com memória ${data.romMemory}ROM / ${data.ramMemory}RAM, marca ${data.brand}, modelo ${data.model}, IMEI ${data.imei1}${data.imei2 ? ` e IMEI ${data.imei2}` : ''}, conforme dados informados neste recibo.`,
+                              text: `A importância de ("${data.saleValueInWords.toLowerCase()}"), correspondente ao valor total pago, referente à compra de 01 (um) aparelho smartphone, com memória ${data.romMemory}ROM / ${data.ramMemory}RAM, marca ${data.brand}, modelo ${data.model}, IMEI ${data.imei1}${data.imei2 ? ` e IMEI ${data.imei2}` : ''}, conforme dados informados neste recibo.`,
                               size: 22,
                               color: '1F2937',
                             }),

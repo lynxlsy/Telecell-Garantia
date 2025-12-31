@@ -126,13 +126,26 @@
 
 /* Print styles with explicit color forcing for perfect black/white reproduction */
 @media print {
-  /* Logo styling for print - convert to pure white and increase size */
+  /* Logo styling for print - force solid black for P&B printing */
   .logo-print {
-    filter: brightness(0) invert(1) !important;
+    filter: none !important;
+    -webkit-filter: none !important;
     width: 130px !important;
     height: auto !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    /* Force logo to appear as solid black */
+    mix-blend-mode: multiply !important;
+  }
+  
+  /* Additional rule to ensure logo appears black during printing */
+  @media print {
+    #print-area img.logo-print {
+      background: none !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      filter: brightness(0) !important;
+    }
   }
 
   /* Hide everything except print area */
@@ -147,7 +160,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 0.5in;
   }
 
   html,
@@ -165,7 +178,8 @@
     left: 0;
     top: 0;
     width: 210mm;
-    height: 148.5mm; /* Half of A4 height (297mm / 2) */
+    min-height: 148.5mm; /* Half of A4 height (297mm / 2) */
+    max-height: 297mm; /* Full A4 height as maximum */
     margin: 0;
     padding: 0;
     page-break-after: avoid;

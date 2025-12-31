@@ -59,8 +59,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
       </div>
 
       <div id="print-area" className="bg-white shadow-lg">
-        {/* 1️⃣ MINIMALIST BLACK HEADER WITH COMPANY DATA */}
-        <div className="bg-black px-4 py-2">
+        {/* 1️⃣ MINIMALIST HEADER WITHOUT BLACK BACKGROUND (INK ECONOMY) */}
+        <div className="bg-white px-4 py-2 border-b-2 border-black">
           <div className="flex items-center justify-between">
             {/* LEFT - LOGO */}
             <div className="flex items-center">
@@ -75,11 +75,11 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
             
             {/* CENTER - FIXED TITLE */}
             <div className="text-center flex-1 mx-4">
-              <h1 className="text-xl font-black text-white tracking-wide">RECIBO DE GARANTIA</h1>
+              <h1 className="text-xl font-black text-black tracking-wide">RECIBO DE GARANTIA</h1>
             </div>
             
             {/* RIGHT - SHOP DATA (COMPACT) */}
-            <div className="text-right text-xs text-white">
+            <div className="text-right text-xs text-black">
               <p className="font-bold">{data.companyName} – {data.companyLegalName}</p>
               <p className="text-xs">CNPJ: {data.companyCNPJ} | IE: {data.companyStateRegistration}</p>
               <p className="text-xs">{data.companyAddress}</p>
@@ -137,7 +137,7 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
             <div className="border-2 border-black p-2 text-center">
               <p className="text-xs font-bold uppercase mb-1">Valor Pago</p>
               <p className="text-2xl font-black">R$ {data.saleValue.toFixed(2).replace(".", ",")}</p>
-              <p className="text-xs font-medium capitalize mt-1">{data.saleValueInWords}</p>
+              <p className="text-xs font-medium mt-1">Por extenso: "{data.saleValueInWords.toLowerCase()}"</p>
             </div>
             
             {/* DADOS DO PAGAMENTO (FORMAL AND CONCISE) */}
