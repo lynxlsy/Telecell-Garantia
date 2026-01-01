@@ -157,6 +157,16 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
             </p>
           </div>
 
+          {/* 5.5️⃣ OBSERVAÇÕES ADICIONAIS (IF EXISTS) */}
+          {data.observations && (
+            <div className="border-2 border-black p-2">
+              <p className="text-xs font-extrabold text-black uppercase mb-1">Observações</p>
+              <p className="text-xs leading-tight">
+                {data.observations}
+              </p>
+            </div>
+          )}
+
           {/* 6️⃣ LOCAL, DATA E ASSINATURA (PROPORTIONAL SIGNATURE LINE) */}
           <div className="space-y-3">
             <div className="text-center">
