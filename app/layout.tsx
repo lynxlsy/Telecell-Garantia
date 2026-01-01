@@ -11,22 +11,21 @@ export const metadata: Metadata = {
   title: "TELECELL MAGAZINE - Recibos",
   description: "Sistema profissional de geração de recibos de garantia para smartphones",
   generator: "TELECELL MAGAZINE - Recibos",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
+        url: "/telecell-logo.png",
+        sizes: "32x32",
+        type: "image/png",
       },
       {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
+        url: "/telecell-logo.png",
+        sizes: "192x192",
+        type: "image/png",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/telecell-logo.png",
   },
 }
 
