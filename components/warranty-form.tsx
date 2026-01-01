@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, ChevronRight, FileText, Download } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, Download, Save } from "lucide-react"
 import { ProgressStepper } from "./progress-stepper"
 import { validateCPF, formatCPF } from "@/lib/cpf-validator"
 import { formatPhone } from "@/lib/format-phone"
@@ -118,6 +118,32 @@ export function WarrantyForm() {
     
   
     
+  const handleSave = () => {
+    const formData = {
+      customerName,
+      cpf,
+      phone,
+      city,
+      state,
+      productType,
+      brand,
+      model,
+      romMemory,
+      ramMemory,
+      imei1,
+      imei2,
+      saleValue,
+      warrantyMonths,
+      observations,
+      issueCity,
+      issueDate,
+      signatureName,
+    };
+    
+    localStorage.setItem('warrantyFormData', JSON.stringify(formData));
+    alert('Dados salvos com sucesso!');
+  };
+  
   const [companyName] = useState("Telecell Magazine")
   const [companyLegalName] = useState("E dos Santos Silva")
   const [companyCNPJ] = useState("06.227.875/0001-07")
@@ -691,9 +717,9 @@ export function WarrantyForm() {
                       <FileText className="mr-2 h-4 w-4" />
                       Visualizar
                     </Button>
-                    <Button onClick={handleGenerateDocx} className="bg-red-600 hover:bg-red-700" size="lg">
-                      <Download className="mr-2 h-4 w-4" />
-                      Gerar DOCX
+                    <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700" size="lg">
+                      <Save className="mr-2 h-4 w-4" />
+                      Salvar
                     </Button>
                   </div>
                 </div>
