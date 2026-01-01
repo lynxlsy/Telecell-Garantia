@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, ChevronRight, FileText, Download, Save } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, Download } from "lucide-react"
 import { ProgressStepper } from "./progress-stepper"
 import { validateCPF, formatCPF } from "@/lib/cpf-validator"
 import { formatPhone } from "@/lib/format-phone"
@@ -116,71 +116,7 @@ export function WarrantyForm() {
     }
   }
     
-  const handleSave = () => {
-    const formData = {
-      customerName,
-      cpf,
-      phone,
-      city,
-      state,
-      productType,
-      brand,
-      model,
-      romMemory,
-      ramMemory,
-      imei1,
-      imei2,
-      saleValue,
-      warrantyMonths,
-      observations,
-      issueCity,
-      issueDate,
-      signatureName,
-    };
-      
-    localStorage.setItem('warrantyFormData', JSON.stringify(formData));
-    alert('Dados salvos com sucesso!');
-  };
-    
-  const handleLoad = () => {
-    const savedData = localStorage.getItem('warrantyFormData');
-    if (savedData) {
-      try {
-        const formData = JSON.parse(savedData);
-        setCustomerName(formData.customerName || "");
-        setCpf(formData.cpf || "");
-        setPhone(formData.phone || "");
-        setCity(formData.city || "");
-        setState(formData.state || "PE");
-        setProductType(formData.productType || "Smartphone");
-        setBrand(formData.brand || "");
-        setModel(formData.model || "");
-        setRomMemory(formData.romMemory || "");
-        setRamMemory(formData.ramMemory || "");
-        setImei1(formData.imei1 || "");
-        setImei2(formData.imei2 || "");
-        setSaleValue(formData.saleValue || "");
-        setWarrantyMonths(formData.warrantyMonths || 12);
-        setObservations(formData.observations || "");
-        setIssueCity(formData.issueCity || "Petrolina – PE");
-        setIssueDate(formData.issueDate || new Date().toLocaleDateString("pt-BR"));
-        setSignatureName(formData.signatureName || "Telecell Magazine");
-        alert('Dados carregados com sucesso!');
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        alert('Erro ao carregar dados salvos');
-      }
-    } else {
-      alert('Nenhum dado salvo encontrado');
-    }
-  };
-    
-  const handleClear = () => {
-    if (confirm('Tem certeza que deseja limpar todos os dados salvos?')) {
-      localStorage.removeItem('warrantyFormData');
-      alert('Dados salvos limpos!');
-    }
-  };
+  
     
   const [companyName] = useState("Telecell Magazine")
   const [companyLegalName] = useState("E dos Santos Silva")
@@ -751,14 +687,6 @@ export function WarrantyForm() {
                     Voltar
                   </Button>
                   <div className="flex gap-3">
-                    <Button onClick={handleLoad} variant="outline" size="lg">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Carregar
-                    </Button>
-                    <Button onClick={handleSave} variant="outline" size="lg">
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar
-                    </Button>
                     <Button onClick={handlePreview} variant="outline" size="lg">
                       <FileText className="mr-2 h-4 w-4" />
                       Visualizar
