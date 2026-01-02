@@ -255,6 +255,16 @@ export function WarrantyForm() {
   const [issueDate, setIssueDate] = useState(new Date().toLocaleDateString("pt-BR"))
   const [signatureName, setSignatureName] = useState("Telecell Magazine")
 
+  // Opções pré-definidas para memória ROM
+  const romOptions = [
+    "16GB", "32GB", "64GB", "128GB", "256GB", "512GB", "1TB"
+  ];
+
+  // Opções pré-definidas para memória RAM
+  const ramOptions = [
+    "2GB", "3GB", "4GB", "6GB", "8GB", "12GB", "16GB", "24GB"
+  ];
+
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {}
 
@@ -576,13 +586,18 @@ export function WarrantyForm() {
                     <Label htmlFor="romMemory" className="text-base font-semibold">
                       Memória ROM *
                     </Label>
-                    <Input
-                      id="romMemory"
-                      value={romMemory}
-                      onChange={(e) => setRomMemory(e.target.value)}
-                      placeholder="Ex: 128GB, 256GB"
-                      className={errors.romMemory ? "border-red-500" : ""}
-                    />
+                    <Select value={romMemory} onValueChange={setRomMemory}>
+                      <SelectTrigger className={errors.romMemory ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Selecione a memória ROM" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {romOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {errors.romMemory && <p className="text-sm text-red-600">{errors.romMemory}</p>}
                   </div>
 
@@ -590,13 +605,18 @@ export function WarrantyForm() {
                     <Label htmlFor="ramMemory" className="text-base font-semibold">
                       Memória RAM *
                     </Label>
-                    <Input
-                      id="ramMemory"
-                      value={ramMemory}
-                      onChange={(e) => setRamMemory(e.target.value)}
-                      placeholder="Ex: 8GB, 12GB"
-                      className={errors.ramMemory ? "border-red-500" : ""}
-                    />
+                    <Select value={ramMemory} onValueChange={setRamMemory}>
+                      <SelectTrigger className={errors.ramMemory ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Selecione a memória RAM" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ramOptions.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {errors.ramMemory && <p className="text-sm text-red-600">{errors.ramMemory}</p>}
                   </div>
                 </div>

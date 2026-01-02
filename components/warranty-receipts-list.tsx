@@ -61,10 +61,13 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
       const matchesSearch = !searchTerm || 
         receipt.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         receipt.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        receipt.cpf.includes(searchTerm) ||
+        receipt.cpf?.includes(searchTerm) ||
+        receipt.cnpj?.includes(searchTerm) ||
         receipt.phone.includes(searchTerm) ||
         receipt.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        receipt.model.toLowerCase().includes(searchTerm.toLowerCase());
+        receipt.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        receipt.romMemory.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        receipt.ramMemory.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Filtro de data
       let matchesDate = true;
@@ -185,7 +188,7 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Buscar por ID, nome, CPF, telefone, marca ou modelo..."
+                placeholder="Buscar por ID, nome, CPF, CNPJ, telefone, marca, modelo, memória ROM ou RAM..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -299,6 +302,10 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Modelo:</span>
                   <span className="font-medium">{receipt.model}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Memória:</span>
+                  <span className="font-medium">{receipt.romMemory}/{receipt.ramMemory}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Valor:</span>
