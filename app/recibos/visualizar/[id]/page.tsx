@@ -151,8 +151,8 @@ export default function VisualizarReciboPage() {
                 <p className="text-black font-medium">{receipt.customerName}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-black">CPF:</p>
-                <p className="text-black font-medium">{receipt.cpf}</p>
+                <p className="text-xs font-medium text-black">{receipt.cpf ? 'CPF:' : receipt.cnpj ? 'CNPJ:' : 'Documento:'}</p>
+                <p className="text-black font-medium">{receipt.cpf || receipt.cnpj}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-black">Telefone:</p>

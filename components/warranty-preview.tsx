@@ -94,8 +94,8 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
                 <p className="text-black font-medium">{data.customerName}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-black">CPF:</p>
-                <p className="text-black font-medium">{data.cpf}</p>
+                <p className="text-xs font-medium text-black">{data.cpf ? 'CPF:' : data.cnpj ? 'CNPJ:' : 'Documento:'}</p>
+                <p className="text-black font-medium">{data.cpf || data.cnpj}</p>
               </div>
               <div>
                 <p className="text-xs font-medium text-black">Telefone:</p>

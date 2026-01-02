@@ -17,7 +17,8 @@ import {
 export interface WarrantyData {
   // Customer
   customerName: string
-  cpf: string
+  cpf?: string
+  cnpj?: string
   phone: string
   city: string
   state: string
@@ -333,7 +334,7 @@ export async function generateWarrantyDocx(data: WarrantyData): Promise<Blob> {
             },
             rows: [
               new TableRow({
-                children: [createInfoCell("Nome", data.customerName, 50), createInfoCell("CPF", data.cpf, 50)],
+                children: [createInfoCell("Nome", data.customerName, 50), createInfoCell(data.cpf ? 'CPF' : data.cnpj ? 'CNPJ' : 'Documento', data.cpf || data.cnpj || '', 50)],
               }),
               new TableRow({
                 children: [
@@ -834,7 +835,7 @@ export async function generateHalfPageWarrantyDocx(data: WarrantyData): Promise<
         new TableRow({
           children: [
             createCompactInfoCell("Nome:", data.customerName, 70),
-            createCompactInfoCell("CPF:", data.cpf, 30, true),
+            createCompactInfoCell(data.cpf ? 'CPF:' : data.cnpj ? 'CNPJ:' : 'Documento:', data.cpf || data.cnpj || '', 30, true),
           ],
         }),
         new TableRow({
@@ -1150,7 +1151,7 @@ export async function generateHalfPageWarrantyDocx(data: WarrantyData): Promise<
         new TableRow({
           children: [
             createCompactInfoCell("Cliente:", data.customerName, 60),
-            createCompactInfoCell("CPF:", data.cpf, 40),
+            createCompactInfoCell(data.cpf ? 'CPF:' : data.cnpj ? 'CNPJ:' : 'Documento:', data.cpf || data.cnpj || '', 40),
           ],
         }),
         new TableRow({
