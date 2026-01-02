@@ -1,14 +1,14 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, Download, AlertCircle, Printer } from "lucide-react"
+import { ChevronLeft, AlertCircle, Printer } from "lucide-react"
 import Image from "next/image"
 import type { WarrantyData } from "@/lib/generate-docx"
 
 interface WarrantyPreviewProps {
   data: WarrantyData
   onBack: () => void
-  onGenerate: () => void
+  onGenerate?: () => void
 }
 
 export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewProps) {
@@ -40,10 +40,7 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
             <Printer className="mr-2 h-4 w-4" />
             Imprimir Recibo
           </Button>
-          <Button onClick={onGenerate} className="bg-red-600 hover:bg-red-700" size="lg">
-            <Download className="mr-2 h-4 w-4" />
-            Gerar DOCX
-          </Button>
+
         </div>
       </div>
 
@@ -52,8 +49,7 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
         <div className="text-sm text-blue-800">
           <p className="font-semibold">Recibo de Garantia</p>
           <p>
-            Optimizado para impressão em preto e branco em meia folha A4. Clique em "Imprimir Recibo" para
-            visualizar ou "Gerar DOCX" para salvar.
+            Optimizado para impressão em preto e branco em meia folha A4. Clique em "Imprimir Recibo" para visualizar.
           </p>
         </div>
       </div>

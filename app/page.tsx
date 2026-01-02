@@ -1,5 +1,8 @@
 import { WarrantyForm } from "@/components/warranty-form"
 import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { FileText, FolderOpen } from "lucide-react"
 
 export default function Home() {
   return (
@@ -22,6 +25,20 @@ export default function Home() {
             Gere recibos de garantia profissionais em poucos passos. Preencha os dados e baixe o documento em formato
             editável.
           </p>
+          
+          {/* Navigation Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+            <Link href="/recibos">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3">
+                <FolderOpen className="mr-2 h-5 w-5" />
+                Ver Recibos Salvos
+              </Button>
+            </Link>
+            <Button variant="outline" className="px-6 py-3">
+              <FileText className="mr-2 h-5 w-5" />
+              Novo Recibo
+            </Button>
+          </div>
         </div>
 
         {/* Form */}

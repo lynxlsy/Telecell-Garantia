@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, ChevronRight, FileText, Download, Save } from "lucide-react"
+import { ChevronLeft, ChevronRight, Save } from "lucide-react"
+import { saveWarrantyReceipt } from "@/lib/firebase"
 import { ProgressStepper } from "./progress-stepper"
 import { validateCPF, formatCPF } from "@/lib/cpf-validator"
 import { formatPhone } from "@/lib/format-phone"
@@ -51,8 +52,6 @@ interface WarrantyData {
   observations?: string
 }
 
-// Removed direct import of generateWarrantyDocx as it uses docx which is not browser-compatible
-// Now using API route for DOCX generation
 import { WarrantyPreview } from "./warranty-preview"
 
 const steps = [
@@ -118,30 +117,43 @@ export function WarrantyForm() {
     
   
     
-  const handleSave = () => {
-    const formData = {
-      customerName,
-      cpf,
-      phone,
-      city,
-      state,
-      productType,
-      brand,
-      model,
-      romMemory,
-      ramMemory,
-      imei1,
-      imei2,
-      saleValue,
-      warrantyMonths,
-      observations,
-      issueCity,
-      issueDate,
-      signatureName,
-    };
-    
-    localStorage.setItem('warrantyFormData', JSON.stringify(formData));
-    alert('Dados salvos com sucesso!');
+  const handleSave = async () => {
+    try {
+      const formData = {
+        customerName,
+        cpf,
+        phone,
+        city,
+        state,
+        productType,
+        brand,
+        model,
+        romMemory,
+        ramMemory,
+        imei1,
+        imei2,
+        saleValue: Number.parseFloat(saleValue),
+        saleValueInWords: numberToWords(Number.parseFloat(saleValue)),
+        warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
+        issueCity,
+        issueDate,
+        signatureName,
+        observations: observations.trim() || undefined,
+        companyName,
+        companyLegalName,
+        companyCNPJ,
+        companyStateRegistration,
+        companyAddress,
+        companyPhone1,
+        companyPhone2,
+      };
+      
+      const receiptId = await saveWarrantyReceipt(formData);
+      alert(`Recibo salvo com sucesso! ID: ${receiptId}`);
+    } catch (error) {
+      console.error("Erro ao salvar recibo:", error);
+      alert("Erro ao salvar recibo. Por favor, tente novamente.");
+    }
   };
   
   const [companyName] = useState("Telecell Magazine")
@@ -226,64 +238,7 @@ export function WarrantyForm() {
     }
   }
 
-  const handleGenerateDocx = async () => {
-    const data: WarrantyData = {
-      customerName,
-      cpf,
-      phone,
-      city,
-      state,
-      productType,
-      brand,
-      model,
-      romMemory,
-      ramMemory,
-      imei1,
-      imei2,
-      saleValue: Number.parseFloat(saleValue),
-      saleValueInWords: numberToWords(Number.parseFloat(saleValue)),
-      warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
-      issueCity,
-      issueDate,
-      signatureName,
-      companyName,
-      companyLegalName,
-      companyCNPJ,
-      companyStateRegistration,
-      companyAddress,
-      companyPhone1,
-      companyPhone2,
-      observations: observations.trim() || undefined,
-    }
 
-    try {
-      const response = await fetch('/api/generate-docx', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate document')
-      }
-
-      // Create a download link for the returned blob
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `Recibo_Garantia_${customerName.replace(/\s+/g, '_')}.docx`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error generating DOCX:', error)
-      alert('Erro ao gerar documento. Por favor, tente novamente.')
-    }
-  }
 
   const saleValueInWords = saleValue ? numberToWords(Number.parseFloat(saleValue) || 0) : ""
 
@@ -319,7 +274,6 @@ export function WarrantyForm() {
           observations: observations.trim() || undefined,
         }}
         onBack={() => setShowPreview(false)}
-        onGenerate={handleGenerateDocx}
       />
     )
   }
@@ -712,16 +666,10 @@ export function WarrantyForm() {
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Voltar
                   </Button>
-                  <div className="flex gap-3">
-                    <Button onClick={handlePreview} variant="outline" size="lg">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Visualizar
-                    </Button>
-                    <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700" size="lg">
-                      <Save className="mr-2 h-4 w-4" />
-                      Salvar
-                    </Button>
-                  </div>
+                  <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700" size="lg">
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar
+                  </Button>
                 </div>
               </CardContent>
             </Card>
