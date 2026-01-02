@@ -179,4 +179,28 @@
   #print-area div {
     border: 1px solid black !important;
   }
+  
+  /* Remover cabeçalho e rodapé da impressão (URL e paginação) */
+  @page {
+    margin: 0.5cm;
+    size: A4;
+    /* Remove cabeçalho e rodapé */
+    @top-center { content: none !important; }
+    @bottom-center { content: none !important; }
+    @top-left { content: none !important; }
+    @top-right { content: none !important; }
+    @bottom-left { content: none !important; }
+    @bottom-right { content: none !important; }
+  }
+  
+  /* Estilos adicionais para forçar a remoção de elementos de impressão do navegador */
+  body::before,
+  body::after {
+    display: none !important;
+  }
+  
+  /* Remover qualquer elemento de paginação automática */
+  #print-area {
+    counter-reset: page;
+  }
 }
