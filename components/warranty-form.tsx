@@ -161,15 +161,18 @@ export function WarrantyForm() {
     }
   };
   
-  // Função para buscar informações do cliente pelo CPF
+  // Função para buscar informações do cliente pelo CPF ou CNPJ
   const handleSearchByCpf = async () => {
     if (!cpf.trim()) {
       alert("Por favor, informe um CPF/CNPJ antes de buscar.");
       return;
     }
     
-    // Verificar se é CPF ou CNPJ
-    if (validateCPF(cpf)) {
+    // Remover caracteres não numéricos para validação
+    const numericValue = cpf.replace(/\D/g, '');
+    
+    // Verificar se é CPF ou CNPJ com base no número de dígitos
+    if (numericValue.length === 11 && validateCPF(cpf)) {
       try {
         const customerData = await getCustomerDataByCpf(cpf);
         
@@ -188,7 +191,7 @@ export function WarrantyForm() {
         console.error("Erro ao buscar informações do cliente:", error);
         alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
       }
-    } else if (validateCNPJ(cpf)) { // Consideramos o campo CPF como campo genérico que pode conter CPF ou CNPJ
+    } else if (numericValue.length === 14 && validateCNPJ(cpf)) { // CNPJ tem 14 dígitos
       try {
         const customerData = await getCustomerDataByCnpj(cpf);
         

@@ -205,10 +205,12 @@ export async function updateCustomerFromReceipt(receipt: Omit<WarrantyReceipt, '
     let cpfValue: string | undefined = undefined;
     let cnpjValue: string | undefined = undefined;
     
-    if (receipt.cpf && (receipt.cpf.replace(/\D/g, '').length === 11)) {
+    const numericValue = receipt.cpf.replace(/\D/g, '');
+    
+    if (numericValue.length === 11) {
       // É um CPF
       cpfValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
-    } else if (receipt.cpf && (receipt.cpf.replace(/\D/g, '').length === 14)) {
+    } else if (numericValue.length === 14) {
       // É um CNPJ
       cnpjValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
     }
