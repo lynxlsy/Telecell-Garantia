@@ -1,17 +1,18 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RefreshCw, Eye, Download, Calendar, Phone, MapPin, Printer, Trash2, Search, X, Filter } from "lucide-react"
+import { RefreshCw, Eye, Download, Calendar, Phone, MapPin, Printer, Trash2, Search, X, Filter, Upload, Download as DownloadIcon } from "lucide-react"
 import { getAllWarrantyReceipts, WarrantyReceipt, deleteWarrantyReceipt } from "@/lib/firebase"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import Link from "next/link"
 import { toast } from "sonner"
+import { exportReceipts, importReceipts, downloadBackup as downloadBackupFile, readBackupFile } from "@/lib/backup"
 
 interface SavedReceiptsListProps {
   onReceiptSelect?: (receipt: WarrantyReceipt) => void
@@ -25,6 +26,9 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [showFilters, setShowFilters] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadReceipts = async () => {
     try {
@@ -259,6 +263,64 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
             </div>
           </Card>
         )}
+      </div>
+
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button 
+            onClick={async () => {
+              setIsExporting(true);
+              try {
+                const backupData = await exportReceipts();
+                downloadBackupFile(backupData);
+                toast.success("Backup exportado com sucesso!");
+              } catch (error) {
+                console.error("Erro ao exportar recibos:", error);
+                toast.error("Erro ao exportar recibos. Por favor, tente novamente.");
+              } finally {
+                setIsExporting(false);
+              }
+            }}
+            variant="default"
+            disabled={isExporting}
+          >
+            <DownloadIcon className="mr-2 h-4 w-4" />
+            Exportar
+          </Button>
+          <Button 
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+            variant="outline"
+            disabled={isImporting}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Importar
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept=".json"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setIsImporting(true);
+                try {
+                  const backupData = await readBackupFile(file);
+                  const importedCount = await importReceipts(backupData);
+                  toast.success(`${importedCount} recibos importados com sucesso!`);
+                  loadReceipts();
+                } catch (error) {
+                  console.error("Erro ao importar recibos:", error);
+                  toast.error(error instanceof Error ? error.message : "Erro ao importar recibos. Por favor, tente novamente.");
+                } finally {
+                  setIsImporting(false);
+                }
+              }
+            }}
+          />
+        </div>
       </div>
 
       {/* Cabeçalho com contagem */}
