@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { ChevronLeft, ChevronRight, Save } from "lucide-react"
-import { saveWarrantyReceipt } from "@/lib/firebase"
+import { ChevronLeft, ChevronRight, Save, Search } from "lucide-react"
+import { saveWarrantyReceipt, getCustomerDataByCpf, getCustomerDataByCnpj, updateCustomerFromReceipt } from "@/lib/firebase"
 import { ProgressStepper } from "./progress-stepper"
 import { validateCPF, formatCPF } from "@/lib/cpf-validator"
+import { validateCNPJ, formatCNPJ } from "@/lib/cnpj-validator"
 import { formatPhone } from "@/lib/format-phone"
 import { numberToWords } from "@/lib/number-to-words"
 // Define WarrantyData interface locally since we can't import it from the server-only module
@@ -149,10 +150,79 @@ export function WarrantyForm() {
       };
       
       const receiptId = await saveWarrantyReceipt(formData);
+      
+      // Atualizar ou salvar informações do cliente no banco de dados
+      await updateCustomerFromReceipt(formData);
+      
       alert(`Recibo salvo com sucesso! ID: ${receiptId}`);
     } catch (error) {
       console.error("Erro ao salvar recibo:", error);
       alert("Erro ao salvar recibo. Por favor, tente novamente.");
+    }
+  };
+  
+  // Função para buscar informações do cliente pelo CPF
+  const handleSearchByCpf = async () => {
+    if (!cpf.trim()) {
+      alert("Por favor, informe um CPF/CNPJ antes de buscar.");
+      return;
+    }
+    
+    // Verificar se é CPF ou CNPJ
+    if (validateCPF(cpf)) {
+      try {
+        const customerData = await getCustomerDataByCpf(cpf);
+        
+        if (customerData) {
+          // Preencher os campos com as informações encontradas
+          setCustomerName(customerData.name);
+          setPhone(customerData.phone);
+          setCity(customerData.city);
+          setState(customerData.state);
+          
+          alert(`Informações do cliente ${customerData.name} encontradas e preenchidas!`);
+        } else {
+          alert("Nenhuma informação encontrada para este CPF. Preencha os dados manualmente.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar informações do cliente:", error);
+        alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
+      }
+    } else if (validateCNPJ(cpf)) { // Consideramos o campo CPF como campo genérico que pode conter CPF ou CNPJ
+      try {
+        const customerData = await getCustomerDataByCnpj(cpf);
+        
+        if (customerData) {
+          // Preencher os campos com as informações encontradas
+          setCustomerName(customerData.name);
+          setPhone(customerData.phone);
+          setCity(customerData.city);
+          setState(customerData.state);
+          
+          alert(`Informações do cliente ${customerData.name} encontradas e preenchidas!`);
+        } else {
+          alert("Nenhuma informação encontrada para este CNPJ. Preencha os dados manualmente.");
+        }
+      } catch (error) {
+        console.error("Erro ao buscar informações do cliente:", error);
+        alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
+      }
+    } else {
+      alert("CPF ou CNPJ inválido. Por favor, verifique o número informado.");
+      return;
+    }
+  };
+  
+  // Função para formatar o campo CPF/CNPJ
+  const formatCpfCnpj = (value: string) => {
+    // Remover caracteres não numéricos
+    const numericValue = value.replace(/\D/g, '');
+    
+    // Verificar se é CPF (11 dígitos) ou CNPJ (14 dígitos) e formatar adequadamente
+    if (numericValue.length <= 11) {
+      return formatCPF(numericValue);
+    } else {
+      return formatCNPJ(numericValue);
     }
   };
   
@@ -328,14 +398,26 @@ export function WarrantyForm() {
                     <Label htmlFor="cpf" className="text-base font-semibold">
                       CPF *
                     </Label>
-                    <Input
-                      id="cpf"
-                      value={cpf}
-                      onChange={(e) => setCpf(formatCPF(e.target.value))}
-                      placeholder="000.000.000-00"
-                      maxLength={14}
-                      className={errors.cpf ? "border-red-500" : ""}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="cpf"
+                        value={cpf}
+                        onChange={(e) => setCpf(formatCpfCnpj(e.target.value))}
+                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                        maxLength={18}
+                        className={`pr-10 ${errors.cpf ? "border-red-500" : ""}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 px-2"
+                        onClick={handleSearchByCpf}
+                        title="Buscar informações do cliente pelo CPF/CNPJ"
+                      >
+                        <Search className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    </div>
                     {errors.cpf && <p className="text-sm text-red-600">{errors.cpf}</p>}
                   </div>
 

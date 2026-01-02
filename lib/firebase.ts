@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp, deleteDoc, doc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp, deleteDoc, doc, where, updateDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -97,6 +97,134 @@ export async function deleteWarrantyReceipt(receiptId: string): Promise<void> {
     await deleteDoc(doc(db, "warranty_receipts", receiptId));
   } catch (error) {
     console.error("Error deleting document: ", error);
+    throw error;
+  }
+}
+
+// Interface para armazenar informações do cliente associadas ao CPF ou CNPJ
+export interface CustomerData {
+  id?: string;
+  cpf?: string;
+  cnpj?: string;
+  name: string;
+  phone: string;
+  city: string;
+  state: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// Função para salvar ou atualizar informações do cliente associadas ao CPF ou CNPJ
+export async function saveCustomerData(customer: Omit<CustomerData, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  try {
+    let q;
+    // Verificar se é CPF ou CNPJ para fazer a busca correta
+    if (customer.cpf) {
+      q = query(collection(db, "customer_data"), where("cpf", "==", customer.cpf));
+    } else if (customer.cnpj) {
+      q = query(collection(db, "customer_data"), where("cnpj", "==", customer.cnpj));
+    } else {
+      throw new Error("É necessário fornecer CPF ou CNPJ para salvar os dados do cliente");
+    }
+    
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      // Se já existir, atualizar o registro existente
+      const docRef = querySnapshot.docs[0].ref;
+      await updateDoc(docRef, {
+        ...customer,
+        updatedAt: Timestamp.now()
+      });
+      return docRef.id;
+    } else {
+      // Se não existir, criar um novo registro
+      const docRef = await addDoc(collection(db, "customer_data"), {
+        ...customer,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+      });
+      return docRef.id;
+    }
+  } catch (error) {
+    console.error("Error adding/updating customer document: ", error);
+    throw error;
+  }
+}
+
+// Função para buscar informações do cliente pelo CPF
+export async function getCustomerDataByCpf(cpf: string): Promise<CustomerData | null> {
+  try {
+    const q = query(collection(db, "customer_data"), where("cpf", "==", cpf));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt,
+        updatedAt: doc.data().updatedAt
+      } as CustomerData;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting customer document: ", error);
+    throw error;
+  }
+}
+
+// Função para buscar informações do cliente pelo CNPJ
+export async function getCustomerDataByCnpj(cnpj: string): Promise<CustomerData | null> {
+  try {
+    const q = query(collection(db, "customer_data"), where("cnpj", "==", cnpj));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return {
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt,
+        updatedAt: doc.data().updatedAt
+      } as CustomerData;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("Error getting customer document: ", error);
+    throw error;
+  }
+}
+
+// Função para atualizar automaticamente os dados do cliente ao salvar um recibo
+export async function updateCustomerFromReceipt(receipt: Omit<WarrantyReceipt, 'id' | 'createdAt'>): Promise<void> {
+  try {
+    // Verificar se o campo CPF contém um CPF ou CNPJ válido
+    let cpfValue: string | undefined = undefined;
+    let cnpjValue: string | undefined = undefined;
+    
+    if (receipt.cpf && (receipt.cpf.replace(/\D/g, '').length === 11)) {
+      // É um CPF
+      cpfValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
+    } else if (receipt.cpf && (receipt.cpf.replace(/\D/g, '').length === 14)) {
+      // É um CNPJ
+      cnpjValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
+    }
+    
+    const customerData: Omit<CustomerData, 'id' | 'createdAt' | 'updatedAt'> = {
+      cpf: cpfValue,
+      cnpj: cnpjValue,
+      name: receipt.customerName,
+      phone: receipt.phone,
+      city: receipt.city,
+      state: receipt.state
+    };
+    
+    await saveCustomerData(customerData);
+  } catch (error) {
+    console.error("Error updating customer from receipt: ", error);
     throw error;
   }
 }
