@@ -123,3 +123,60 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Estilos de impressão para remover elementos indesejados */
+@media print {
+  /* Ocultar todos os elementos exceto a área de impressão */
+  body *:not(#print-area):not(#print-area *) {
+    display: none !important;
+  }
+  
+  /* Configurações específicas para a área de impressão */
+  #print-area {
+    display: block !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Estilos para garantir que o conteúdo da impressão seja exibido corretamente */
+  @page {
+    margin: 0.5cm;
+    size: A4;
+  }
+  
+  /* Garantir que todas as cores sejam convertidas para preto e branco */
+  #print-area * {
+    color: black !important;
+    background: white !important;
+    border-color: black !important;
+  }
+  
+  /* Remover sombras e efeitos desnecessários */
+  #print-area {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* Garantir que as imagens sejam impressas corretamente */
+  #print-area img {
+    display: inline-block !important;
+  }
+  
+  /* Forçar quebra de página apropriada se necessário */
+  #print-area {
+    page-break-inside: avoid !important;
+  }
+  
+  /* Remover bordas duplas ou estilos excessivos */
+  #print-area div {
+    border: 1px solid black !important;
+  }
+}
