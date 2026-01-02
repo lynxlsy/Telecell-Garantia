@@ -18,7 +18,8 @@ import { numberToWords } from "@/lib/number-to-words"
 interface WarrantyData {
   // Customer
   customerName: string
-  cpf: string
+  cpf?: string
+  cnpj?: string
   phone: string
   city: string
   state: string
@@ -95,8 +96,9 @@ const brazilianStates = [
 export function WarrantyForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [showPreview, setShowPreview] = useState(false)
+  const [documentType, setDocumentType] = useState<'cpf' | 'cnpj'>('cpf'); // Default to CPF
   const [errors, setErrors] = useState<Record<string, string>>({})
-    
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -105,24 +107,25 @@ export function WarrantyForm() {
         const focusableElements = form.querySelectorAll(
           'input, select, textarea, button'
         ) as NodeListOf<HTMLElement>;
-          
+        
         const currentElement = e.currentTarget as HTMLElement;
         const currentIndex = Array.from(focusableElements).indexOf(currentElement);
-          
+        
         if (currentIndex < focusableElements.length - 1) {
           focusableElements[currentIndex + 1].focus();
         }
       }
     }
   }
-    
   
-    
+
+  
   const handleSave = async () => {
     try {
       const formData = {
         customerName,
-        cpf,
+        cpf: documentType === 'cpf' && cpf ? cpf : undefined,
+        cnpj: documentType === 'cnpj' && cnpj ? cnpj : undefined,
         phone,
         city,
         state,
@@ -160,74 +163,61 @@ export function WarrantyForm() {
       alert("Erro ao salvar recibo. Por favor, tente novamente.");
     }
   };
-  
+
   // Função para buscar informações do cliente pelo CPF ou CNPJ
-  const handleSearchByCpf = async () => {
-    if (!cpf.trim()) {
-      alert("Por favor, informe um CPF/CNPJ antes de buscar.");
+  const handleSearchByDocument = async () => {
+    const documentValue = documentType === 'cpf' ? cpf : cnpj;
+    
+    if (!documentValue.trim()) {
+      alert(`Por favor, informe um ${documentType.toUpperCase()} antes de buscar.`);
       return;
     }
     
-    // Remover caracteres não numéricos para validação
-    const numericValue = cpf.replace(/\D/g, '');
-    
-    // Verificar se é CPF ou CNPJ com base no número de dígitos
-    if (numericValue.length === 11 && validateCPF(cpf)) {
-      try {
-        const customerData = await getCustomerDataByCpf(cpf);
-        
-        if (customerData) {
-          // Preencher os campos com as informações encontradas
-          setCustomerName(customerData.name);
-          setPhone(customerData.phone);
-          setCity(customerData.city);
-          setState(customerData.state);
-          
-          alert(`Informações do cliente ${customerData.name} encontradas e preenchidas!`);
-        } else {
-          alert("Nenhuma informação encontrada para este CPF. Preencha os dados manualmente.");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar informações do cliente:", error);
-        alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
-      }
-    } else if (numericValue.length === 14 && validateCNPJ(cpf)) { // CNPJ tem 14 dígitos
-      try {
-        const customerData = await getCustomerDataByCnpj(cpf);
-        
-        if (customerData) {
-          // Preencher os campos com as informações encontradas
-          setCustomerName(customerData.name);
-          setPhone(customerData.phone);
-          setCity(customerData.city);
-          setState(customerData.state);
-          
-          alert(`Informações do cliente ${customerData.name} encontradas e preenchidas!`);
-        } else {
-          alert("Nenhuma informação encontrada para este CNPJ. Preencha os dados manualmente.");
-        }
-      } catch (error) {
-        console.error("Erro ao buscar informações do cliente:", error);
-        alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
-      }
-    } else {
-      alert("CPF ou CNPJ inválido. Por favor, verifique o número informado.");
+    if (documentType === 'cpf' && !validateCPF(documentValue)) {
+      alert("CPF inválido. Por favor, verifique o número informado.");
       return;
     }
-  };
-  
-  // Função para formatar o campo CPF/CNPJ
-  const formatCpfCnpj = (value: string) => {
-    // Remover caracteres não numéricos
-    const numericValue = value.replace(/\D/g, '');
     
-    // Verificar se é CPF (11 dígitos) ou CNPJ (14 dígitos) e formatar adequadamente
-    if (numericValue.length <= 11) {
-      return formatCPF(numericValue);
-    } else {
-      return formatCNPJ(numericValue);
+    if (documentType === 'cnpj' && !validateCNPJ(documentValue)) {
+      alert("CNPJ inválido. Por favor, verifique o número informado.");
+      return;
+    }
+    
+    try {
+      let customerData;
+      if (documentType === 'cpf') {
+        customerData = await getCustomerDataByCpf(documentValue);
+      } else {
+        customerData = await getCustomerDataByCnpj(documentValue);
+      }
+      
+      if (customerData) {
+        // Preencher os campos com as informações encontradas
+        setCustomerName(customerData.name);
+        setPhone(customerData.phone);
+        setCity(customerData.city);
+        setState(customerData.state);
+        
+        alert(`Informações do cliente ${customerData.name} encontradas e preenchidas!`);
+      } else {
+        alert(`Nenhuma informação encontrada para este ${documentType.toUpperCase()}. Preencha os dados manualmente.`);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar informações do cliente:", error);
+      alert("Erro ao buscar informações do cliente. Por favor, tente novamente.");
     }
   };
+
+  // Função para formatar o campo CPF
+  const formatCpf = (value: string) => {
+    return formatCPF(value);
+  };
+
+  // Função para formatar o campo CNPJ
+  const formatCnpj = (value: string) => {
+    return formatCNPJ(value);
+  };
+
   
   const [companyName] = useState("Telecell Magazine")
   const [companyLegalName] = useState("E dos Santos Silva")
@@ -240,6 +230,7 @@ export function WarrantyForm() {
   // Step 1: Customer Data
   const [customerName, setCustomerName] = useState("")
   const [cpf, setCpf] = useState("")
+  const [cnpj, setCnpj] = useState("")
   const [phone, setPhone] = useState("")
   const [city, setCity] = useState("")
   const [state, setState] = useState("PE")
@@ -269,10 +260,15 @@ export function WarrantyForm() {
 
     if (step === 1) {
       if (!customerName.trim()) newErrors.customerName = "Nome é obrigatório"
-      if (!cpf.trim()) {
+      if (documentType === 'cpf' && !cpf.trim()) {
         newErrors.cpf = "CPF é obrigatório"
-      } else if (!validateCPF(cpf)) {
+      } else if (documentType === 'cpf' && !validateCPF(cpf)) {
         newErrors.cpf = "CPF inválido"
+      }
+      if (documentType === 'cnpj' && !cnpj.trim()) {
+        newErrors.cnpj = "CNPJ é obrigatório"
+      } else if (documentType === 'cnpj' && !validateCNPJ(cnpj)) {
+        newErrors.cnpj = "CNPJ inválido"
       }
       if (!phone.trim()) newErrors.phone = "Telefone é obrigatório"
       if (!city.trim()) newErrors.city = "Cidade é obrigatória"
@@ -313,7 +309,6 @@ export function WarrantyForm() {
   }
 
 
-
   const saleValueInWords = saleValue ? numberToWords(Number.parseFloat(saleValue) || 0) : ""
 
   if (showPreview) {
@@ -321,7 +316,8 @@ export function WarrantyForm() {
       <WarrantyPreview
         data={{
           customerName,
-          cpf,
+          cpf: documentType === 'cpf' ? cpf : undefined,
+          cnpj: documentType === 'cnpj' ? cnpj : undefined,
           phone,
           city,
           state,
@@ -396,32 +392,72 @@ export function WarrantyForm() {
                   {errors.customerName && <p className="text-sm text-red-600">{errors.customerName}</p>}
                 </div>
 
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">
+                    Tipo de Documento *
+                  </Label>
+                  <div className="flex space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="documentTypeCpf"
+                        name="documentType"
+                        checked={documentType === 'cpf'}
+                        onChange={() => setDocumentType('cpf')}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500"
+                      />
+                      <Label htmlFor="documentTypeCpf" className="text-sm font-medium">
+                        CPF
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="radio"
+                        id="documentTypeCnpj"
+                        name="documentType"
+                        checked={documentType === 'cnpj'}
+                        onChange={() => setDocumentType('cnpj')}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500"
+                      />
+                      <Label htmlFor="documentTypeCnpj" className="text-sm font-medium">
+                        CNPJ
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="cpf" className="text-base font-semibold">
-                      CPF *
+                    <Label htmlFor={documentType} className="text-base font-semibold">
+                      {documentType === 'cpf' ? 'CPF *' : 'CNPJ *'}
                     </Label>
                     <div className="relative">
                       <Input
-                        id="cpf"
-                        value={cpf}
-                        onChange={(e) => setCpf(formatCpfCnpj(e.target.value))}
-                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
-                        maxLength={18}
-                        className={`pr-10 ${errors.cpf ? "border-red-500" : ""}`}
+                        id={documentType}
+                        value={documentType === 'cpf' ? cpf : cnpj}
+                        onChange={(e) => {
+                          if (documentType === 'cpf') {
+                            setCpf(formatCpf(e.target.value));
+                          } else {
+                            setCnpj(formatCnpj(e.target.value));
+                          }
+                        }}
+                        placeholder={documentType === 'cpf' ? '000.000.000-00' : '00.000.000/0000-00'}
+                        maxLength={documentType === 'cpf' ? 14 : 18}
+                        className={`pr-10 ${errors[documentType as keyof typeof errors] ? "border-red-500" : ""}`}
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         className="absolute right-2 top-1/2 transform -translate-y-1/2 h-7 px-2"
-                        onClick={handleSearchByCpf}
-                        title="Buscar informações do cliente pelo CPF/CNPJ"
+                        onClick={handleSearchByDocument}
+                        title={`Buscar informações do cliente pelo ${documentType.toUpperCase()}`}
                       >
                         <Search className="h-4 w-4 text-gray-500" />
                       </Button>
                     </div>
-                    {errors.cpf && <p className="text-sm text-red-600">{errors.cpf}</p>}
+                    {errors[documentType as keyof typeof errors] && <p className="text-sm text-red-600">{errors[documentType as keyof typeof errors]}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -528,7 +564,7 @@ export function WarrantyForm() {
                       id="model"
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      placeholder="Ex: Galaxy S24, iPhone 15"
+                      placeholder="Ex: Galaxy S21, iPhone 13"
                       className={errors.model ? "border-red-500" : ""}
                     />
                     {errors.model && <p className="text-sm text-red-600">{errors.model}</p>}
@@ -540,19 +576,13 @@ export function WarrantyForm() {
                     <Label htmlFor="romMemory" className="text-base font-semibold">
                       Memória ROM *
                     </Label>
-                    <Select value={romMemory} onValueChange={setRomMemory}>
-                      <SelectTrigger className={errors.romMemory ? "border-red-500" : ""}>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="32GB">32GB</SelectItem>
-                        <SelectItem value="64GB">64GB</SelectItem>
-                        <SelectItem value="128GB">128GB</SelectItem>
-                        <SelectItem value="256GB">256GB</SelectItem>
-                        <SelectItem value="512GB">512GB</SelectItem>
-                        <SelectItem value="1TB">1TB</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="romMemory"
+                      value={romMemory}
+                      onChange={(e) => setRomMemory(e.target.value)}
+                      placeholder="Ex: 128GB, 256GB"
+                      className={errors.romMemory ? "border-red-500" : ""}
+                    />
                     {errors.romMemory && <p className="text-sm text-red-600">{errors.romMemory}</p>}
                   </div>
 
@@ -560,20 +590,13 @@ export function WarrantyForm() {
                     <Label htmlFor="ramMemory" className="text-base font-semibold">
                       Memória RAM *
                     </Label>
-                    <Select value={ramMemory} onValueChange={setRamMemory}>
-                      <SelectTrigger className={errors.ramMemory ? "border-red-500" : ""}>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2GB">2GB</SelectItem>
-                        <SelectItem value="3GB">3GB</SelectItem>
-                        <SelectItem value="4GB">4GB</SelectItem>
-                        <SelectItem value="6GB">6GB</SelectItem>
-                        <SelectItem value="8GB">8GB</SelectItem>
-                        <SelectItem value="12GB">12GB</SelectItem>
-                        <SelectItem value="16GB">16GB</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="ramMemory"
+                      value={ramMemory}
+                      onChange={(e) => setRamMemory(e.target.value)}
+                      placeholder="Ex: 8GB, 12GB"
+                      className={errors.ramMemory ? "border-red-500" : ""}
+                    />
                     {errors.ramMemory && <p className="text-sm text-red-600">{errors.ramMemory}</p>}
                   </div>
                 </div>
@@ -586,35 +609,32 @@ export function WarrantyForm() {
                     <Input
                       id="imei1"
                       value={imei1}
-                      onChange={(e) => setImei1(e.target.value.replace(/\D/g, "").slice(0, 15))}
-                      placeholder="Digite o IMEI 1"
-                      maxLength={15}
-                      className={`font-mono ${errors.imei1 ? "border-red-500" : ""}`}
+                      onChange={(e) => setImei1(e.target.value)}
+                      placeholder="IMEI do aparelho"
+                      className={errors.imei1 ? "border-red-500" : ""}
                     />
                     {errors.imei1 && <p className="text-sm text-red-600">{errors.imei1}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="imei2" className="text-base font-semibold">
-                      IMEI 2 (Opcional)
+                      IMEI 2
                     </Label>
                     <Input
                       id="imei2"
                       value={imei2}
-                      onChange={(e) => setImei2(e.target.value.replace(/\D/g, "").slice(0, 15))}
-                      placeholder="Digite o IMEI 2 (se houver)"
-                      maxLength={15}
-                      className="font-mono"
+                      onChange={(e) => setImei2(e.target.value)}
+                      placeholder="IMEI secundário (opcional)"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-4">
-                  <Button onClick={handleBack} variant="outline">
+                <div className="flex space-x-4 pt-4">
+                  <Button type="button" onClick={handleBack} variant="outline" className="flex-1">
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Voltar
                   </Button>
-                  <Button onClick={handleNext} className="bg-red-600 hover:bg-red-700">
+                  <Button onClick={handleNext} className="flex-1 bg-red-600 hover:bg-red-700">
                     Próximo
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -628,85 +648,79 @@ export function WarrantyForm() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">Dados da Venda</CardTitle>
-                <CardDescription>Informações comerciais da transação</CardDescription>
+                <CardDescription>Informações sobre o valor e garantia</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="saleValue" className="text-base font-semibold">
-                    Valor da Venda (R$) *
+                    Valor da Venda *
                   </Label>
                   <Input
                     id="saleValue"
                     type="number"
                     step="0.01"
-                    min="0"
                     value={saleValue}
                     onChange={(e) => setSaleValue(e.target.value)}
-                    placeholder="0.00"
-                    className={`text-lg font-semibold ${errors.saleValue ? "border-red-500" : ""}`}
+                    placeholder="0,00"
+                    className={errors.saleValue ? "border-red-500" : ""}
                   />
                   {errors.saleValue && <p className="text-sm text-red-600">{errors.saleValue}</p>}
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">Valor por Extenso</Label>
-                  <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border-2 border-gray-200">
-                    <p className="text-sm text-gray-800 capitalize font-medium leading-relaxed">
-                      {saleValueInWords || "O valor por extenso aparecerá aqui automaticamente"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="warrantyMonths" className="text-base font-semibold">
-                    Duração da Garantia (meses)
-                  </Label>
-                  <Input
-                    id="warrantyMonths"
-                    type="number"
-                    min="1"
-                    value={warrantyMonths}
-                    onChange={(e) => setWarrantyMonths(Number.parseInt(e.target.value) || 1)}
-                    placeholder="Digite o número de meses"
-                  />
-                  <div className="flex items-center space-x-2 pt-2">
-                    <input
-                      type="checkbox"
-                      id="useDecimalCounting"
-                      checked={useDecimalCounting}
-                      onChange={(e) => setUseDecimalCounting(e.target.checked)}
-                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                    />
-                    <Label htmlFor="useDecimalCounting" className="text-sm font-normal">
-                      Contar os decimais (12 meses = 365 dias)
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="warrantyMonths" className="text-base font-semibold">
+                      Garantia (meses)
                     </Label>
+                    <Input
+                      id="warrantyMonths"
+                      type="number"
+                      value={warrantyMonths}
+                      onChange={(e) => setWarrantyMonths(Number(e.target.value))}
+                      min="1"
+                      max="999"
+                      className="w-full"
+                    />
+                    <p className="text-sm text-gray-500">Duração da garantia em meses</p>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    A garantia será calculada como {warrantyMonths} meses ({useDecimalCounting ? Math.floor(warrantyMonths * 30.44) : warrantyMonths * 30} dias)
-                  </p>
+
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold">Contar os decimais (12 meses = 365 dias)</Label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="useDecimalCounting"
+                        checked={useDecimalCounting}
+                        onChange={(e) => setUseDecimalCounting(e.target.checked)}
+                        className="h-4 w-4 text-red-600 focus:ring-red-500 rounded"
+                      />
+                      <Label htmlFor="useDecimalCounting" className="text-sm font-medium">
+                        Ativado
+                      </Label>
+                    </div>
+                    <p className="text-sm text-gray-500">Calcula 12 meses como 365 dias em vez de 360 dias</p>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="observations" className="text-base font-semibold">
-                    Observações (Opcional)
+                    Observações
                   </Label>
                   <Textarea
                     id="observations"
                     value={observations}
                     onChange={(e) => setObservations(e.target.value)}
-                    placeholder="Ex: Condição do aparelho, acessórios entregues, acordos específicos, informações internas..."
-                    rows={4}
-                    className="resize-none"
+                    placeholder="Observações adicionais sobre a garantia ou venda..."
+                    rows={3}
                   />
-                  <p className="text-sm text-gray-500">Adicione informações adicionais que deseja incluir no recibo</p>
                 </div>
 
-                <div className="flex justify-between pt-4">
-                  <Button onClick={handleBack} variant="outline">
+                <div className="flex space-x-4 pt-4">
+                  <Button type="button" onClick={handleBack} variant="outline" className="flex-1">
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Voltar
                   </Button>
-                  <Button onClick={handleNext} className="bg-red-600 hover:bg-red-700">
+                  <Button onClick={handleNext} className="flex-1 bg-red-600 hover:bg-red-700">
                     Próximo
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -719,56 +733,72 @@ export function WarrantyForm() {
           {currentStep === 4 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl">Emissão</CardTitle>
-                <CardDescription>Finalize o recibo de garantia</CardDescription>
+                <CardTitle className="text-2xl">Emissão do Recibo</CardTitle>
+                <CardDescription>Confirme os dados de emissão</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="issueCity" className="text-base font-semibold">
-                      Cidade de Emissão
+                      Cidade de Emissão *
                     </Label>
                     <Input
                       id="issueCity"
                       value={issueCity}
                       onChange={(e) => setIssueCity(e.target.value)}
-                      placeholder="Petrolina – PE"
+                      placeholder="Cidade de emissão"
+                      className="w-full"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="issueDate" className="text-base font-semibold">
-                      Data de Emissão
+                      Data de Emissão *
                     </Label>
                     <Input
                       id="issueDate"
+                      type="text"
                       value={issueDate}
                       onChange={(e) => setIssueDate(e.target.value)}
                       placeholder="DD/MM/AAAA"
+                      className="w-full"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="signatureName" className="text-base font-semibold">
-                    Nome na Assinatura
+                    Nome para Assinatura *
                   </Label>
                   <Input
                     id="signatureName"
                     value={signatureName}
                     onChange={(e) => setSignatureName(e.target.value)}
-                    placeholder="Telecell Magazine"
+                    placeholder="Nome que aparecerá na assinatura"
+                    className="w-full"
                   />
                 </div>
 
-                <div className="flex justify-between gap-4 pt-4">
-                  <Button onClick={handleBack} variant="outline">
+                <div className="pt-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="font-semibold text-blue-800">Resumo da Garantia</p>
+                    <p className="text-blue-700">
+                      {warrantyMonths} meses ({useDecimalCounting ? Math.floor(warrantyMonths * 30.44) : warrantyMonths * 30} dias)
+                    </p>
+                    <p className="text-blue-700">
+                      Valor: R$ {Number(saleValue).toFixed(2).replace('.', ',')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <Button type="button" onClick={handleBack} variant="outline" className="flex-1">
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Voltar
                   </Button>
-                  <Button onClick={handleSave} className="bg-red-600 hover:bg-red-700" size="lg">
+                  <Button type="submit" className="flex-1 bg-red-600 hover:bg-red-700">
                     <Save className="mr-2 h-4 w-4" />
-                    Salvar
+                    Salvar Recibo
                   </Button>
                 </div>
               </CardContent>

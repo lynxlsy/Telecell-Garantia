@@ -23,7 +23,8 @@ const db = getFirestore(app);
 export interface WarrantyReceipt {
   id?: string;
   customerName: string;
-  cpf: string;
+  cpf?: string;
+  cnpj?: string;
   phone: string;
   city: string;
   state: string;
@@ -201,18 +202,27 @@ export async function getCustomerDataByCnpj(cnpj: string): Promise<CustomerData 
 // Função para atualizar automaticamente os dados do cliente ao salvar um recibo
 export async function updateCustomerFromReceipt(receipt: Omit<WarrantyReceipt, 'id' | 'createdAt'>): Promise<void> {
   try {
-    // Verificar se o campo CPF contém um CPF ou CNPJ válido
+    // Verificar se o campo CPF ou CNPJ contém um documento válido
     let cpfValue: string | undefined = undefined;
     let cnpjValue: string | undefined = undefined;
     
-    const numericValue = receipt.cpf.replace(/\D/g, '');
-    
-    if (numericValue.length === 11) {
-      // É um CPF
-      cpfValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
-    } else if (numericValue.length === 14) {
-      // É um CNPJ
-      cnpjValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
+    if (receipt.cpf) {
+      const numericValue = receipt.cpf.replace(/\D/g, '');
+      
+      if (numericValue.length === 11) {
+        // É um CPF
+        cpfValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
+      } else if (numericValue.length === 14) {
+        // É um CNPJ
+        cnpjValue = receipt.customerName === receipt.cpf ? undefined : receipt.cpf;
+      }
+    } else if (receipt.cnpj) {
+      const numericValue = receipt.cnpj.replace(/\D/g, '');
+      
+      if (numericValue.length === 14) {
+        // É um CNPJ
+        cnpjValue = receipt.customerName === receipt.cnpj ? undefined : receipt.cnpj;
+      }
     }
     
     const customerData: Omit<CustomerData, 'id' | 'createdAt' | 'updatedAt'> = {
