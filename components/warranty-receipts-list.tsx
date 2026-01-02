@@ -1,14 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { RefreshCw, Eye, Download, Calendar, Phone, MapPin, Printer } from "lucide-react"
-import { getAllWarrantyReceipts, WarrantyReceipt } from "@/lib/firebase"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { RefreshCw, Eye, Download, Calendar, Phone, MapPin, Printer, Trash2, Search, X, Filter } from "lucide-react"
+import { getAllWarrantyReceipts, WarrantyReceipt, deleteWarrantyReceipt } from "@/lib/firebase"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface SavedReceiptsListProps {
   onReceiptSelect?: (receipt: WarrantyReceipt) => void
@@ -18,6 +21,10 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
   const [receipts, setReceipts] = useState<WarrantyReceipt[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
 
   const loadReceipts = async () => {
     try {
@@ -31,6 +38,58 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Função para converter timestamp do Firebase para Date
+  const convertTimestampToDate = (timestamp: any): Date | null => {
+    try {
+      if (timestamp?.toDate) {
+        return timestamp.toDate();
+      } else if (timestamp instanceof Date) {
+        return timestamp;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // Filtrar recibos com base nos critérios
+  const filteredReceipts = useMemo(() => {
+    return receipts.filter(receipt => {
+      // Filtro de busca
+      const matchesSearch = !searchTerm || 
+        receipt.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        receipt.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        receipt.cpf.includes(searchTerm) ||
+        receipt.phone.includes(searchTerm) ||
+        receipt.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        receipt.model.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Filtro de data
+      let matchesDate = true;
+      if (startDate || endDate) {
+        const receiptDate = convertTimestampToDate(receipt.createdAt);
+        if (receiptDate) {
+          const start = startDate ? new Date(startDate) : null;
+          const end = endDate ? new Date(endDate) : null;
+          
+          if (start && receiptDate < start) matchesDate = false;
+          if (end && receiptDate > end) matchesDate = false;
+        } else {
+          matchesDate = false;
+        }
+      }
+
+      return matchesSearch && matchesDate;
+    });
+  }, [receipts, searchTerm, startDate, endDate]);
+
+  // Limpar filtros
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStartDate("");
+    setEndDate("");
   }
 
   useEffect(() => {
@@ -50,6 +109,19 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
 
   const handleRefresh = () => {
     loadReceipts()
+  }
+
+  const handleDelete = async (receiptId: string, customerName: string) => {
+    if (confirm(`Tem certeza que deseja excluir o recibo de ${customerName}? Esta ação não pode ser desfeita.`)) {
+      try {
+        await deleteWarrantyReceipt(receiptId);
+        toast.success(`Recibo de ${customerName} excluído com sucesso!`);
+        loadReceipts(); // Recarrega a lista após exclusão
+      } catch (error) {
+        console.error("Erro ao excluir recibo:", error);
+        toast.error("Erro ao excluir o recibo. Por favor, tente novamente.");
+      }
+    }
   }
 
   if (loading) {
@@ -83,7 +155,7 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
     )
   }
 
-  if (receipts.length === 0) {
+  if (receipts.length === 0 && !loading) {
     return (
       <Card>
         <CardHeader>
@@ -106,18 +178,102 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
 
   return (
     <div className="space-y-6">
+      {/* Barra de Busca e Filtros */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Buscar por ID, nome, CPF, telefone, marca ou modelo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+          
+          <Button 
+            onClick={() => setShowFilters(!showFilters)}
+            variant="outline"
+            className={`${showFilters ? "bg-gray-100" : ""}`}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Filtros Avançados
+          </Button>
+          
+          <Button onClick={handleRefresh} variant="outline" size="sm">
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+        </div>
+
+        {/* Filtros Avançados */}
+        {showFilters && (
+          <Card className="p-4">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-semibold text-gray-800">Filtros Avançados</h3>
+                <Button 
+                  onClick={clearFilters}
+                  variant="ghost" 
+                  size="sm"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <X className="mr-1 h-4 w-4" />
+                  Limpar Filtros
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-sm font-medium">
+                    Data Inicial
+                  </Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    max={endDate || undefined}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="endDate" className="text-sm font-medium">
+                    Data Final
+                  </Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={startDate || undefined}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Cabeçalho com contagem */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">
-          Recibos Salvos ({receipts.length})
-        </h2>
-        <Button onClick={handleRefresh} variant="outline" size="sm">
-          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </Button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Recibos Salvos
+          </h2>
+          <p className="text-gray-600">
+            {filteredReceipts.length} de {receipts.length} recibos encontrados
+            {searchTerm && ` (buscando por "${searchTerm}")`}
+            {(startDate || endDate) && ` (filtrados por data)`}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {receipts.map((receipt) => (
+        {filteredReceipts.map((receipt) => (
           <Card key={receipt.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
@@ -188,6 +344,16 @@ export function SavedReceiptsList({ onReceiptSelect }: SavedReceiptsListProps) {
                     Imprimir
                   </Button>
                 </Link>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => receipt.id && handleDelete(receipt.id, receipt.customerName || 'cliente')}
+                  title="Excluir recibo"
+                >
+                  <Trash2 className="mr-2 h-4 w-4 text-red-500" />
+                  Excluir
+                </Button>
               </div>
             </CardContent>
           </Card>

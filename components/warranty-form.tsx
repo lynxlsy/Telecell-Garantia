@@ -134,7 +134,7 @@ export function WarrantyForm() {
         imei2,
         saleValue: Number.parseFloat(saleValue),
         saleValueInWords: numberToWords(Number.parseFloat(saleValue)),
-        warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
+        warrantyDuration: `${warrantyMonths} meses (${useDecimalCounting ? Math.floor(warrantyMonths * 30.44) : warrantyMonths * 30} dias)` ,
         issueCity,
         issueDate,
         signatureName,
@@ -183,6 +183,7 @@ export function WarrantyForm() {
   // Step 3: Sale Data
   const [saleValue, setSaleValue] = useState("")
   const [warrantyMonths, setWarrantyMonths] = useState(12)
+  const [useDecimalCounting, setUseDecimalCounting] = useState(true) // Default to checked
   const [observations, setObservations] = useState("")
 
   // Step 4: Issuance Data
@@ -260,7 +261,7 @@ export function WarrantyForm() {
           imei2,
           saleValue: Number.parseFloat(saleValue),
           saleValueInWords,
-          warrantyDuration: `${warrantyMonths} meses (${warrantyMonths * 30} dias)` ,
+          warrantyDuration: `${warrantyMonths} meses (${useDecimalCounting ? Math.floor(warrantyMonths * 30.44) : warrantyMonths * 30} dias)` ,
           issueCity,
           issueDate,
           signatureName,
@@ -583,7 +584,21 @@ export function WarrantyForm() {
                     onChange={(e) => setWarrantyMonths(Number.parseInt(e.target.value) || 1)}
                     placeholder="Digite o número de meses"
                   />
-                  <p className="text-sm text-gray-500">A garantia será calculada como {warrantyMonths} meses ({warrantyMonths * 30} dias)</p>
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="useDecimalCounting"
+                      checked={useDecimalCounting}
+                      onChange={(e) => setUseDecimalCounting(e.target.checked)}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                    />
+                    <Label htmlFor="useDecimalCounting" className="text-sm font-normal">
+                      Contar os decimais (12 meses = 365 dias)
+                    </Label>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    A garantia será calculada como {warrantyMonths} meses ({useDecimalCounting ? Math.floor(warrantyMonths * 30.44) : warrantyMonths * 30} dias)
+                  </p>
                 </div>
 
                 <div className="space-y-2">

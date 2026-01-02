@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp, deleteDoc, doc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -87,6 +87,16 @@ export async function getAllWarrantyReceipts(): Promise<WarrantyReceipt[]> {
     } as WarrantyReceipt));
   } catch (error) {
     console.error("Error getting documents: ", error);
+    throw error;
+  }
+}
+
+// Function to delete a warranty receipt from Firestore
+export async function deleteWarrantyReceipt(receiptId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, "warranty_receipts", receiptId));
+  } catch (error) {
+    console.error("Error deleting document: ", error);
     throw error;
   }
 }

@@ -17,13 +17,13 @@ export function WarrantyPreview({ data, onBack, onGenerate }: WarrantyPreviewPro
   }
   
   const getWarrantyText = (warrantyDuration: string): string => {
-    // Parse the warranty duration string to extract months
+    // Parse the warranty duration string to extract months and days
     // Expected format: "X meses (Y dias)" where X is months and Y is days
     const monthsMatch = warrantyDuration.match(/(\d+)\s*meses?/);
-    const months = monthsMatch ? parseInt(monthsMatch[1]) : 12;
+    const daysMatch = warrantyDuration.match(/\((\d+)\s*dias?\)/);
     
-    // Calculate days based on months (using 30 days per month as standard)
-    const days = months * 30;
+    const months = monthsMatch ? parseInt(monthsMatch[1]) : 12;
+    const days = daysMatch ? parseInt(daysMatch[1]) : months * 30;
     
     return `Garantia válida por ${months} meses (${days} dias). Não cobre impacto, oxidação ou qualquer dano provocado por mau uso do aparelho.`;
   }
